@@ -5,6 +5,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_rest_passwordreset.tokens import get_token_generator
 
+# Константы для состояний заказов
 STATE_CHOICES = (
     ('basket', 'Статус корзины'),
     ('new', 'Новый'),
@@ -15,6 +16,7 @@ STATE_CHOICES = (
     ('canceled', 'Отменен'),
 )
 
+# Константы для типов пользователей
 USER_TYPE_CHOICES = (
     ('shop', 'Магазин'),
     ('buyer', 'Покупатель'),
@@ -28,12 +30,13 @@ USER_TYPE_CHOICES = (
 class UserManager(BaseUserManager):
     """
     Миксин для управления пользователями
+    необходим для создания user и superuser
     """
     use_in_migrations = True
 
     def _create_user(self, email, password, **extra_fields):
         """
-        Create and save a user with the given username, email, and password.
+         Создает пользователя с указанными email и паролем, сохраняет его в базе данных.
         """
         if not email:
             raise ValueError('The given email must be set')
@@ -43,11 +46,13 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+    # создание обычного user
     def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
         return self._create_user(email, password, **extra_fields)
 
+    # создание superuser
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
@@ -63,7 +68,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     """
-    Стандартная модель пользователей
+    Стандартная модель пользователей, расширенная полями для работы с магазинами и покупателями
     """
     REQUIRED_FIELDS = []
     objects = UserManager()
@@ -101,6 +106,9 @@ class User(AbstractUser):
 
 
 class Shop(models.Model):
+    """
+    Модель магазина
+    """
     objects = models.manager.Manager()
     name = models.CharField(max_length=50, verbose_name='Название')
     url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
@@ -121,6 +129,9 @@ class Shop(models.Model):
 
 
 class Category(models.Model):
+    """
+     Модель категории товаров
+    """
     objects = models.manager.Manager()
     name = models.CharField(max_length=40, verbose_name='Название')
     shops = models.ManyToManyField(Shop, verbose_name='Магазины', related_name='categories', blank=True)
@@ -135,6 +146,9 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    """
+    Модель продукта
+    """
     objects = models.manager.Manager()
     name = models.CharField(max_length=80, verbose_name='Название')
     category = models.ForeignKey(Category, verbose_name='Категория', related_name='products', blank=True,
@@ -150,6 +164,9 @@ class Product(models.Model):
 
 
 class ProductInfo(models.Model):
+    """
+    Модель информации о продукте для конкретного магазина
+    """
     objects = models.manager.Manager()
     model = models.CharField(max_length=80, verbose_name='Модель', blank=True)
     external_id = models.PositiveIntegerField(verbose_name='Внешний ИД')
@@ -170,6 +187,9 @@ class ProductInfo(models.Model):
 
 
 class Parameter(models.Model):
+    """
+    Модель параметров товара
+    """
     objects = models.manager.Manager()
     name = models.CharField(max_length=40, verbose_name='Название')
 
@@ -183,6 +203,9 @@ class Parameter(models.Model):
 
 
 class ProductParameter(models.Model):
+    """
+    Модель для значений определенных параметров конкретного продукта
+    """
     objects = models.manager.Manager()
     product_info = models.ForeignKey(ProductInfo, verbose_name='Информация о продукте',
                                      related_name='product_parameters', blank=True,
@@ -200,6 +223,9 @@ class ProductParameter(models.Model):
 
 
 class Contact(models.Model):
+    """
+    Модель для контактов пользователя
+    """
     objects = models.manager.Manager()
     user = models.ForeignKey(User, verbose_name='Пользователь',
                              related_name='contacts', blank=True,
@@ -222,6 +248,9 @@ class Contact(models.Model):
 
 
 class Order(models.Model):
+    """
+    Модель заказа
+    """
     objects = models.manager.Manager()
     user = models.ForeignKey(User, verbose_name='Пользователь',
                              related_name='orders', blank=True,
@@ -242,6 +271,9 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
+    """
+    Модель конкретной позиции заказа
+    """
     objects = models.manager.Manager()
     order = models.ForeignKey(Order, verbose_name='Заказ', related_name='ordered_items', blank=True,
                               on_delete=models.CASCADE)
@@ -260,6 +292,9 @@ class OrderItem(models.Model):
 
 
 class ConfirmEmailToken(models.Model):
+    """
+    Модель для подтверждения почты
+    """
     objects = models.manager.Manager()
     class Meta:
         verbose_name = 'Токен подтверждения Email'
