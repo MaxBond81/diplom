@@ -20,6 +20,7 @@ from backend.serializers import UserSerializer, CategorySerializer, ShopSerializ
     OrderItemSerializer, OrderSerializer, ContactSerializer
 from backend.signals import new_user_registered, new_order
 
+
 def string_to_bool(value: str) -> bool:
     """
     Функция преобразует строку в логическое значение (True или False).
