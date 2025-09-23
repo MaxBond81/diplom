@@ -6,7 +6,12 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver, Signal
 from django_rest_passwordreset.signals import reset_password_token_created
 
-from backend.models import ConfirmEmailToken, User
+from backend.models import ConfirmEmailToken, User, Order
+
+from backend.tasks import send_email
+import logging
+
+logger = logging.getLogger(__name__)
 
 new_user_registered = Signal()
 
@@ -62,21 +67,36 @@ def new_user_registered_signal(sender: Type[User], instance: User, created: bool
 
 
 @receiver(new_order)
-def new_order_signal(user_id, **kwargs):
+def new_order_signal(user_id: int, *args, **kwargs):
     """
-    отправяем письмо при изменении статуса заказа
-    """
-    # send an e-mail to the user
-    user = User.objects.get(id=user_id)
+    Сигнал для отправки письма при размещении нового заказа
 
-    msg = EmailMultiAlternatives(
-        # title:
-        f"Обновление статуса заказа",
-        # message:
-        'Заказ сформирован',
-        # from:
-        settings.EMAIL_HOST_USER,
-        # to:
-        [user.email]
-    )
-    msg.send()
+    Args:
+        user_id: ID пользователя
+        *args: Дополнительные аргументы
+        **kwargs: Дополнительные аргументы
+    """
+    try:
+        # Получаем пользователя по ID
+        user = User.objects.get(id=user_id)
+        # Получаем заказ
+        order = Order.objects.filter(user_id=user_id, state='basket').first()
+        if order:
+            # Обновляем статус заказа
+            order.state = 'new'
+            order.save()
+        # Получаем email администратора
+        admin_email = User.objects.filter(is_superuser=True).first().email
+        # Отправляем письмо пользователю и администратору о новом заказе
+        send_email.delay(
+            # Заголовок письма
+            subject='Обновление статуса заказа',
+            # Текст письма
+            message=f'Заказ сформирован',
+            # Отправитель
+            from_email=settings.EMAIL_HOST_USER,
+            # Получатели
+            recipient_list=[user.email, admin_email]
+        )
+    except Exception as e:
+        logger.error(f'При отправке письма произошла ошибка: {e}')
