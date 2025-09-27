@@ -1,8 +1,13 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
+from django.urls import path, reverse
+from django.shortcuts import redirect, render
+from django.utils.html import format_html
 
 from backend.models import User, Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact, ConfirmEmailToken
+
+from backend.tasks import do_import
 
 
 @admin.register(User)
@@ -33,9 +38,53 @@ class ShopAdmin(admin.ModelAdmin):
               search_fields: Поля для поиска
     """
 
-    list_display = ('name', 'url', 'user', 'state')
+    list_display = ('name', 'url', 'user', 'state', 'import_button')
     list_filter = ('state',)
     search_fields = ('name', 'url')
+
+    def import_button(self, obj):
+        """ Кнопка 'Импорт товаров' для каждого магазина."""
+        return format_html(
+            '<a class="button" href="{}">📥 Импорт товаров</a>',
+            reverse('admin:run-do-import')  # маршрут
+        )
+
+    import_button.short_description = 'Импорт товаров'
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('import/', self.admin_site.admin_view(self.run_do_import), name='run-do-import')
+        ]
+        return custom_urls + urls
+
+    def run_do_import(self, request):
+        if request.method == 'POST':
+            url = request.POST.get('url')
+
+            if not url:
+                messages.error(request, 'URL не указан')
+                return redirect('admin:run-do-import')
+
+            if not request.user.is_authenticated:
+                messages.error(request, 'Вы не вошли в аккаунт магазина')
+                return redirect('admin:run-do-import')
+
+            if request.user.type != 'shop':
+                messages.error(request, 'Эта функция только для магазинов')
+                return redirect('admin:run-do-import')
+
+            try:
+                task = do_import.delay(url=url, user_id=request.user.id)
+                messages.success(request, f'Задача импорта запущена. ID задачи: {task.id}')
+            except Exception as e:
+                messages.error(request, f'Ошибка запуска задачи: {e}')
+            return redirect('admin:run-do-import')
+        return render(request, 'admin/run_task_form.html', {
+            'title': 'Импорт данных магазина',
+            'task_name': 'do_import',
+            'form_action': 'admin:run-do-import'
+        })
 
 
 @admin.register(Category)
