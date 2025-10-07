@@ -1,68 +1,62 @@
-# Пример API-сервиса для магазина
+# Backend-приложение для автоматизации закупок
 
-[Документация по запросам в PostMan](https://documenter.getpostman.com/view/5037826/SVfJUrSc) 
+## Оглавление
 
-
-
-
-## **Получить исходный код**
-
-    git config --global user.name "YOUR_USERNAME"
-    
-    git config --global user.email "your_email_address@example.com"
-    
-    mkdir ~/my_diplom
-    
-    cd my_diplom
-    
-    git clone git@github.com:A-Iskakov/netology_pd_diplom.git
-    
-    cd netology_pd_diplom
-    
-    sudo pip3 install  --upgrade pip
-    
-    sudo pip3 install -r requirements.txt
-    
-    python3 manage.py makemigrations
-     
-    python3 manage.py migrate
-    
-    python3 manage.py createsuperuser    
-    
- 
-## **Проверить работу модулей**
-    
-    
-    python3 manage.py runserver 0.0.0.0:8000
+- [Backend-приложение для автоматизации закупок](#backend-приложение-для-автоматизации-закупок)
+  - [Оглавление](#оглавление)
+  - [1. Описание проекта](#1-описание-проекта)
+  - [2. Функциональные возможности](#2-функциональные-возможности)
+  - [3. Технологии и инструменты](#3-технологии-и-инструменты)
+  - [4. Запуск приложения](#4-запуск-приложения)
 
 
-## **Установить СУБД (опционально)**
 
-    sudo nano  /etc/apt/sources.list.d/pgdg.list
+## 1. Описание проекта
+Проект представляет собой REST API для автоматизации закупок, который включает:
+- Регистрацию и аутентификацию пользователей
+- Управление магазинами и товарами
+- Формирование корзины и заказов
+- Отправку уведомлений при регистрации пользователей и создании заказов
+- Интеграцию с Celery для асинхронных задач
+
+## 2. Функциональные возможности
+- Регистрация новых пользователей с подтверждением email
+- Аутентификация существующих пользователей.
+- Обновление данных магазина через YAML-файл, изменение статуса магазина.
+- Каталог товаров с фильтрацией по категориям и магазинам.
+- Создание, обновление и удаление заказов.
+- Добавление либо удаление товаров, обновление количества товаров в корзине.
+- Управление контактной информацией пользователя.
+
+## 3. Технологии и инструменты
+- Python 3.12
+- Django 5.2
+- Django Rest Framework (DRF)
+- Redis
+- PostgreSQL
+- Celery
+- Docker
+
+## 4. Запуск приложения
+
+1. Установите зависимости
+```bash
+pip install -r requirements.txt
+```
+2. В корневой директории проекта cоздайте файл `.env` .
+3. Скопируйте содержимое `.env.example` в `.env`.
+4. Значения переменных в `.env` замените  на свои.
+5. Запустите контейнеры Docker:
+```bash
+docker compose build
+docker compose up -d
+```
+6. Запустите миграции:
+```bash
+docker-compose exec web python manage.py migrate --noinput
+```
     
-    ----->
-    deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main
-    <<----
-    
-    
-    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-    
-    sudo apt-get update
-    
-    sudo apt-get install postgresql-11 postgresql-server-dev-11
-    
-    sudo -u postgres psql postgres
-    
-    create user diplom_user with password 'password';
-    
-    alter role diplom_user set client_encoding to 'utf8';
-    
-    alter role diplom_user set default_transaction_isolation to 'read committed';
-    
-    alter role diplom_user set timezone to 'Europe/Moscow';
-    
-    create database diplom_db owner mploy;
-    alter user mploy createdb;
+   
 
     
    
