@@ -47,10 +47,10 @@ def authenticated_client(api_client, user_data, create_user):
         format='json'
     )
     assert response.status_code == 200
-    token = response.json()['Access']
+    token = response.json()['Token']
 
     # Устанавливаем токен в заголовок
-    api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
     return api_client
 
 
