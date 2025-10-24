@@ -109,3 +109,26 @@ def test_get_shops(authenticated_client):
         shop = response.data['results'][0]
         assert 'id' in shop
         assert 'name' in shop
+
+
+# Тестирование получения списка товаров
+@pytest.mark.django_db
+def test_get_products(authenticated_client):
+    url = reverse('backend:products')
+
+    # Отправляем запрос
+    response = authenticated_client.get(url)
+
+    # Проверяем статус код и содержимое
+    assert response.status_code == 200
+    response_products = response.json()
+    assert isinstance(response_products, list)
+
+    # Если есть товары, проверяем их структуру
+    if response_products:
+        product = response_products[0]
+        assert 'id' in product
+        assert 'model' in product
+        assert 'price' in product
+        assert 'price_rrc' in product
+        assert 'quantity' in product
