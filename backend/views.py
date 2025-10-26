@@ -743,3 +743,9 @@ class OrderView(APIView):
                         return JsonResponse({'Status': True})
 
         return JsonResponse({'Status': False, 'Errors': 'All necessary arguments are not specified'})
+
+
+class TestThrottleView(APIView):
+    """Тестовая вьюха для проверки лимитов"""
+    def get(self, request):
+        return Response({"message": "Success"})
