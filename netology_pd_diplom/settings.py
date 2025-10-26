@@ -160,6 +160,15 @@ REST_FRAMEWORK = {
 
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/hour',  # 10 запросов в час для анонимных
+        'user': '100/day'  # 100 запросов в день для авторизованных
+    }
+
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -190,3 +199,24 @@ SPECTACULAR_SETTINGS = {
         'defaultModelsExpandDepth': 1,
     },
 }
+
+# Настройки кэширования
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": config('REDIS_URL', 'redis://localhost:6379/1'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SOCKET_CONNECT_TIMEOUT": 5,  # секунды
+            "SOCKET_TIMEOUT": 5,          # секунды
+            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
+            "IGNORE_EXCEPTIONS": True,
+        },
+        "KEY_PREFIX": "npd"
+    }
+}
+
+# Время жизни кэша по умолчанию (в секундах)
+CACHE_MIDDLEWARE_SECONDS = 60 * 15  # 15 минут
+CACHE_MIDDLEWARE_KEY_PREFIX = "npd"
+CACHE_MIDDLEWARE_ALIAS = "default"
