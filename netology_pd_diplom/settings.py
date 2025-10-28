@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_rest_passwordreset',
     'drf_spectacular',
+    'social_django',
     'backend',
 ]
 
@@ -68,6 +69,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -220,3 +223,13 @@ CACHES = {
 CACHE_MIDDLEWARE_SECONDS = 60 * 15  # 15 минут
 CACHE_MIDDLEWARE_KEY_PREFIX = "npd"
 CACHE_MIDDLEWARE_ALIAS = "default"
+
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.vk.VKOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '54268780'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'P30tjWgIe95gY1mV767G'
