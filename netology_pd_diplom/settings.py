@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'baton',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'social_django',
     'backend',
+    'baton.autodiscover'
 ]
 
 MIDDLEWARE = [
@@ -233,3 +235,16 @@ AUTHENTICATION_BACKENDS = (
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '54268780'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'P30tjWgIe95gY1mV767G'
+
+
+BATON = {
+    'SITE_HEADER': 'Мой проект',
+    'SITE_TITLE': 'Админ‑панель',
+    'INDEX_TITLE': 'Управление сайтом',
+    'SUPPORT_HREF': 'https://example.com/support',
+    'COPYRIGHT': '© 2025 Мой проект',
+    'POWERED_BY': '<a href="https://example.com">Моя компания</a>',
+    'CONFIRM_UNSAVED_CHANGES': True,
+    'SHOW_MULTIPART_UPLOADING': True,
+    'ENABLE_IMAGES_PREVIEW': True,
+}
