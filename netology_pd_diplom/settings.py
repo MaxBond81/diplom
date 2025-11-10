@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'social_django',
     'backend',
-    'baton.autodiscover'
+    'baton.autodiscover',
+    'cachalot'
 ]
 
 MIDDLEWARE = [
@@ -207,24 +208,22 @@ SPECTACULAR_SETTINGS = {
 
 # Настройки кэширования
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": config('REDIS_URL', 'redis://localhost:6379/1'),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "SOCKET_CONNECT_TIMEOUT": 5,  # секунды
-            "SOCKET_TIMEOUT": 5,          # секунды
-            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
-            "IGNORE_EXCEPTIONS": True,
-        },
-        "KEY_PREFIX": "npd"
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',  # или docker-host
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
+        }
     }
 }
 
-# Время жизни кэша по умолчанию (в секундах)
-CACHE_MIDDLEWARE_SECONDS = 60 * 15  # 15 минут
-CACHE_MIDDLEWARE_KEY_PREFIX = "npd"
-CACHE_MIDDLEWARE_ALIAS = "default"
+
+CACHALOT_ENABLED = True  # Включить кэширование
+CACHALOT_TIMEOUT = 300  # Время жизни кэша в секундах (по умолчанию 300)
+CACHALOT_CACHE = 'default'  # Используем наш Redis-кэш
+CACHALOT_INVALIDATE_WHEN_QUERYSET_TRIGGERED = True  # Автоочистка при изменениях
 
 
 AUTHENTICATION_BACKENDS = (
