@@ -3,7 +3,8 @@ from django_rest_passwordreset.views import reset_password_request_token, reset_
 
 from backend.views import PartnerUpdate, RegisterAccount, LoginAccount, CategoryView, ShopView, ProductInfoView, \
     BasketView, \
-    AccountDetails, ContactView, OrderView, PartnerState, PartnerOrders, ConfirmAccount, TestThrottleView
+    AccountDetails, ContactView, OrderView, PartnerState, PartnerOrders, ConfirmAccount, TestThrottleView, \
+    SentryTestView, login_view
 
 app_name = 'backend'
 urlpatterns = [
@@ -22,8 +23,11 @@ urlpatterns = [
     path('products', ProductInfoView.as_view(), name='products'),
     path('basket', BasketView.as_view(), name='basket'),
     path('order', OrderView.as_view(), name='order'),
+    path('login/', login_view, name='login'),
 
     # Эндпоинт для тестирования лимитов
     path('test-throttle/', TestThrottleView.as_view(), name='test_throttle'),
+    # Эндпоинт для тестирования Sentry
+    path('sentry-test/', SentryTestView.as_view(), name='sentry-test'),
 
 ]

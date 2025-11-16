@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 from decouple import config
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -56,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'netology_pd_diplom.urls'
@@ -74,6 +77,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+
             ],
         },
     },
@@ -227,23 +231,41 @@ CACHALOT_INVALIDATE_WHEN_QUERYSET_TRIGGERED = True  # Автоочистка п�
 
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.vk.VKOAuth2',
+    'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '54268780'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'P30tjWgIe95gY1mV767G'
+SOCIAL_AUTH_GITHUB_KEY = config('SOCIAL_AUTH_GITHUB_KEY')
+SOCIAL_AUTH_GITHUB_SECRET = config('SOCIAL_AUTH_GITHUB_SECRET')
+LOGIN_URL = '/login/' # URL страницы входа
+LOGIN_REDIRECT_URL = '/admin/' # URL после входа
+
+
+
+
 
 
 BATON = {
-    'SITE_HEADER': 'Мой проект',
+    'SITE_HEADER': 'проект Заказы',
     'SITE_TITLE': 'Админ‑панель',
     'INDEX_TITLE': 'Управление сайтом',
     'SUPPORT_HREF': 'https://example.com/support',
-    'COPYRIGHT': '© 2025 Мой проект',
-    'POWERED_BY': '<a href="https://example.com">Моя компания</a>',
+    'COPYRIGHT': '© 2025 проект диплом',
+    'POWERED_BY': '<a href="https://example.com">МMM</a>',
     'CONFIRM_UNSAVED_CHANGES': True,
     'SHOW_MULTIPART_UPLOADING': True,
     'ENABLE_IMAGES_PREVIEW': True,
 }
+
+# Sentry для обработки ошибок
+SENTRY_DSN = config('SENTRY_DSN', default='')
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=1.0,
+        send_default_pii=True,
+    )
+
