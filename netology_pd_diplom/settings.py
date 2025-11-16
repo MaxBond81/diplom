@@ -224,6 +224,32 @@ CACHES = {
 }
 
 
+# Настройки логирования
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
 CACHALOT_ENABLED = True  # Включить кэширование
 CACHALOT_TIMEOUT = 300  # Время жизни кэша в секундах (по умолчанию 300)
 CACHALOT_CACHE = 'default'  # Используем наш Redis-кэш
